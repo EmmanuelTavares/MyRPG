@@ -15,7 +15,8 @@ MonoBehaviour:
   displayName: Serpent
   maxHealth: 80
   maxMana: 120
-  baseDamage: 10
   physicalMultiply: 0.8
   magicMultiply: 1.2
   vulnerableToFire: 0
+  baseDamage: 10
+  spellCost: 8

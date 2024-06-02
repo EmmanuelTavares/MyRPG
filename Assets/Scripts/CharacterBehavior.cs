@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CharacterBehavior : MonoBehaviour
 {
-    static public Action<bool> OnVunerableToFire;
+    static public Action<bool, CharacterBehavior> OnVunerableToFire;
 
     [SerializeField] private CharacterObject characterObject;
 
@@ -19,13 +19,13 @@ public class CharacterBehavior : MonoBehaviour
         currentMana = characterObject.maxMana;
     }
 
-    private bool IsHealthLow()
+    public bool IsHealthLow()
     {
         // Retorna resultado da condicao de vida
         return currentHealth / characterObject.maxHealth < .4f;
     }
 
-    private bool ShouldUseMagic()
+    public bool ShouldUseMagic()
     {
         // Retorna 70% do dano mais forte
         float rand = UnityEngine.Random.Range(0f, 1f);
@@ -51,7 +51,7 @@ public class CharacterBehavior : MonoBehaviour
         if (fireDamage && characterObject.vulnerableToFire) 
         { 
             currentHealth -= damage * 1.25f;
-            OnVunerableToFire?.Invoke(true);
+            OnVunerableToFire?.Invoke(true, this);  // Chama acao e retorna a si proprio e que tem fraqueza
         }
         else { currentHealth -= damage; }
     }
@@ -84,6 +84,7 @@ public class CharacterBehavior : MonoBehaviour
         if (attackCount % 3 == 0) { other.TakeDamage(damage * 2f, false); }
         else { Attack(other); }
         countAttacks = true;
+        attackCount++;
     }
 
     public SCharacter GetCharacterInfo()
