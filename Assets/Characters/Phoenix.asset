@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8b05a17935c0ce44ba96a8407534cfb, type: 3}
-  m_Name: Serpent
+  m_Name: Phoenix
   m_EditorClassIdentifier: 
-  displayName: Serpent
-  maxHealth: 110
-  maxMana: 90
-  physicalMultiply: 0.9
-  magicMultiply: 1.1
-  vulnerableToFire: 1
+  displayName: Phoenix
+  maxHealth: 50
+  maxMana: 150
+  physicalMultiply: 0.3
+  magicMultiply: 1.8
+  vulnerableToFire: 0
   baseDamage: 10
   spellCost: 30

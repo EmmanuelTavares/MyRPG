@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8b05a17935c0ce44ba96a8407534cfb, type: 3}
-  m_Name: Serpent
+  m_Name: BabyDragon
   m_EditorClassIdentifier: 
-  displayName: Serpent
-  maxHealth: 110
-  maxMana: 90
-  physicalMultiply: 0.9
-  magicMultiply: 1.1
-  vulnerableToFire: 1
+  displayName: Baby Dragon
+  maxHealth: 100
+  maxMana: 100
+  physicalMultiply: 1
+  magicMultiply: 1
+  vulnerableToFire: 0
   baseDamage: 10
   spellCost: 30

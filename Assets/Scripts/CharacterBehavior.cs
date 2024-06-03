@@ -7,17 +7,22 @@ public class CharacterBehavior : MonoBehaviour
 {
     static public Action<bool, CharacterBehavior> OnVunerableToFire;
     static public Action<CharacterBehavior, string> OnAttack;
+    static public Action<CharacterBehavior> OnDeath;
 
-    [SerializeField] private CharacterObject characterObject;
-
+    private CharacterObject characterObject;
     private float currentHealth, currentMana;
-    private int attackCount = 3;
+    private int attackCount;
     private bool countAttacks;
 
-    private void Awake()
+    public void SetCharacterObject(CharacterObject character)
     {
+        // Defini personagen e reseta as variaveis
+        characterObject = character;
         currentHealth = characterObject.maxHealth;
         currentMana = characterObject.maxMana;
+        attackCount = 3;
+        countAttacks = false;
+        OnVunerableToFire?.Invoke(false, this);
     }
 
     public bool IsHealthLow()
@@ -43,7 +48,7 @@ public class CharacterBehavior : MonoBehaviour
     private bool HasMana()
     {
         // Retorna resultado da condicao de mana
-        return currentMana > characterObject.spellCost;
+        return currentMana >= characterObject.spellCost;
     }
 
     private void TakeDamage(float damage, bool fireDamage)
@@ -52,9 +57,16 @@ public class CharacterBehavior : MonoBehaviour
         if (fireDamage && characterObject.vulnerableToFire) 
         { 
             currentHealth -= damage * 1.25f;
-            OnVunerableToFire?.Invoke(true, this);  // Chama acao e retorna a si proprio e que tem fraqueza
+            OnVunerableToFire?.Invoke(true, this);  // Chama acao e retorna a si proprio e que tem fraqueza           
         }
         else { currentHealth -= damage; }
+
+        // Checa morte do jogador
+        if (currentHealth <= 0f)
+        {
+            currentHealth = 0f;
+            OnDeath?.Invoke(this);
+        }
     }
 
     public void Attack(CharacterBehavior other)
@@ -63,6 +75,7 @@ public class CharacterBehavior : MonoBehaviour
         float damage = characterObject.baseDamage * characterObject.physicalMultiply;
         other.TakeDamage(damage, false);
         OnAttack?.Invoke(this, "attacked!");
+        currentMana += 10f;
 
         if (countAttacks) { attackCount++; }
     }
@@ -90,7 +103,11 @@ public class CharacterBehavior : MonoBehaviour
             OnAttack?.Invoke(this, "made a super attack!");
             attackCount = 0;
         }
-        else { Attack(other); }
+        else 
+        {
+            if (other.characterObject.vulnerableToFire || ShouldUseMagic()) { Fireball(other); }
+            else { Attack(other); }            
+        }
         countAttacks = true;
     }
 
