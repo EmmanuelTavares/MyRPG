@@ -6,11 +6,12 @@ using UnityEngine;
 public class CharacterBehavior : MonoBehaviour
 {
     static public Action<bool, CharacterBehavior> OnVunerableToFire;
+    static public Action<CharacterBehavior, string> OnAttack;
 
     [SerializeField] private CharacterObject characterObject;
 
     private float currentHealth, currentMana;
-    private int attackCount;
+    private int attackCount = 3;
     private bool countAttacks;
 
     private void Awake()
@@ -61,6 +62,7 @@ public class CharacterBehavior : MonoBehaviour
         // Ataque fisico
         float damage = characterObject.baseDamage * characterObject.physicalMultiply;
         other.TakeDamage(damage, false);
+        OnAttack?.Invoke(this, "attacked!");
 
         if (countAttacks) { attackCount++; }
     }
@@ -72,6 +74,7 @@ public class CharacterBehavior : MonoBehaviour
         if (HasMana()) 
         { 
             other.TakeDamage(damage, true);
+            OnAttack?.Invoke(this, "spell a fireball!");
             currentMana -= characterObject.spellCost;
         }
         else { Attack(other); }
@@ -81,10 +84,14 @@ public class CharacterBehavior : MonoBehaviour
     {
         // Super ataque no terceiro turno
         float damage = characterObject.baseDamage * GetPowerfulDamage();
-        if (attackCount % 3 == 0) { other.TakeDamage(damage * 2f, false); }
+        if (attackCount == 3) 
+        { 
+            other.TakeDamage(damage * 2f, false);
+            OnAttack?.Invoke(this, "made a super attack!");
+            attackCount = 0;
+        }
         else { Attack(other); }
         countAttacks = true;
-        attackCount++;
     }
 
     public SCharacter GetCharacterInfo()

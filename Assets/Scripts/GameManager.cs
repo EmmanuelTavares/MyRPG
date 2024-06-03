@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
         // Comeca ataque e contra-ataque do inimigo
         player.Attack(enemy);
         UpdateText(enemy, enemyWeakness);
-        UpdateHistory(player, "attacked!", "cyan");
 
         StartCoroutine(EnemyAttack());
     }
@@ -39,7 +38,6 @@ public class GameManager : MonoBehaviour
         player.Fireball(enemy);
         UpdateText(enemy, enemyWeakness); 
         UpdateText(player, playerWeakness);
-        UpdateHistory(player, "spell a fireball!", "cyan");
 
         StartCoroutine(EnemyAttack());
     }
@@ -49,7 +47,6 @@ public class GameManager : MonoBehaviour
         // Comeca super ataque e contra-ataque do inimigo
         player.SuperAttack(enemy);
         UpdateText(enemy, enemyWeakness);
-        UpdateHistory(player, "made a super attack!", "cyan");
 
         StartCoroutine(EnemyAttack());
     }
@@ -73,9 +70,17 @@ public class GameManager : MonoBehaviour
         StopCoroutine(EnemyAttack());
     }
 
-    private void OnEnable() { CharacterBehavior.OnVunerableToFire += UpdateWeakness; }
+    private void OnEnable() 
+    { 
+        CharacterBehavior.OnVunerableToFire += UpdateWeakness;
+        CharacterBehavior.OnAttack += UpdateHistory;
+    }
 
-    private void OnDisable() { CharacterBehavior.OnVunerableToFire -= UpdateWeakness; }
+    private void OnDisable() 
+    { 
+        CharacterBehavior.OnVunerableToFire -= UpdateWeakness; 
+        CharacterBehavior.OnAttack -= UpdateHistory;
+    }
 
     private void UpdateWeakness(bool weakness, CharacterBehavior character)
     {
@@ -84,7 +89,7 @@ public class GameManager : MonoBehaviour
         else if (character == enemy) {  enemyWeakness = weakness; }
     }
 
-    private void UpdateText(CharacterBehavior character, bool showWeakness)
+    private void UpdateText(CharacterBehavior character, bool showWeakness)     // CHECAR VIDA, TROCAR DE INIMIGO, VENCEDOR
     {
         // Pega texto e informacoes do personagem
         Text text = character.gameObject.GetComponent<Text>();
@@ -107,9 +112,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void UpdateHistory(CharacterBehavior character, string actionText, string characterColor)
+    private void UpdateHistory(CharacterBehavior character, string actionText)
     {
+        // Atualiza o historico
         string characterName = character.GetCharacterInfo().Name;
-        history.text = $"<color={characterColor}>{characterName}</color> " + actionText + "\n\n" + history.text;
+        string color = character == player ? "cyan" : "red";
+        history.text = $"<color={color}>{characterName}</color> " + actionText + "\n\n" + history.text;
     }
 }
