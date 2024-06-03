@@ -83,32 +83,34 @@ public class CharacterBehavior : MonoBehaviour
     public void Fireball(CharacterBehavior other)
     {
         // Ataque magico se tiver mana
-        float damage = characterObject.baseDamage * characterObject.magicMultiply;
         if (HasMana()) 
-        { 
+        {
+            float damage = characterObject.baseDamage * characterObject.magicMultiply;
             other.TakeDamage(damage, true);
             OnAttack?.Invoke(this, "spell a fireball!");
             currentMana -= characterObject.spellCost;
+
+            if (countAttacks) { attackCount++; }
         }
         else { Attack(other); }
     }
 
-    public void SuperAttack(CharacterBehavior other)
+    public void SuperAttack(CharacterBehavior other, bool otherHasFireWeakness)
     {
-        // Super ataque no terceiro turno
-        float damage = characterObject.baseDamage * GetPowerfulDamage();
-        if (attackCount == 3) 
-        { 
+        // Super ataque no terceiro turno e se tiver com pouca vida
+        if (attackCount == 3 && IsHealthLow()) 
+        {
+            float damage = characterObject.baseDamage * GetPowerfulDamage();
             other.TakeDamage(damage * 2f, false);
             OnAttack?.Invoke(this, "made a super attack!");
+            countAttacks = true;
             attackCount = 0;
         }
-        else 
+        else // Aplica o ataque mais danoso
         {
-            if (other.characterObject.vulnerableToFire || ShouldUseMagic()) { Fireball(other); }
-            else { Attack(other); }            
-        }
-        countAttacks = true;
+            if (otherHasFireWeakness || ShouldUseMagic()) { Fireball(other); }
+            else { Attack(other); }
+        }        
     }
 
     public SCharacter GetCharacterInfo()

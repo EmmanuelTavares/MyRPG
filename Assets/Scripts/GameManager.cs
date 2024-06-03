@@ -11,13 +11,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject hud;
     [SerializeField] private List<CharacterObject> characters;
 
-    private bool playerWeakness, enemyWeakness;
+    private bool playerHasFireWeakness, enemyHasFireWeakness, isBattleEnd;
 
     private void Start()
     {
         // Inicializa os textos e os botoes
         UpdateCharacterObject(player); UpdateCharacterObject(enemy);
-        UpdateText(player, playerWeakness); UpdateText(enemy, enemyWeakness);
+        UpdateText(player, playerHasFireWeakness); UpdateText(enemy, enemyHasFireWeakness);
         history.text = ""; end.text = "";
         attack.onClick.AddListener(PlayerAttack);
         fireball.onClick.AddListener(PlayerFireball);
@@ -26,10 +26,10 @@ public class GameManager : MonoBehaviour
 
     private void UpdateCharacterObject(CharacterBehavior character)
     {
-        // Atualiza personagem se a lista nao tiver vazia
-        if (characters == null || characters.Count == 0)        // ----> MELHORAR SISTEMA DE CHECAGEM DE QUEM PERDEU E O TEXTO
+        // Atualiza personagem se a lista nao tiver vazia (fim de jogo)
+        if (characters == null || characters.Count == 0)
         {
-            StopAllCoroutines();
+            isBattleEnd = true;
             end.text = character.GetCharacterInfo().Name + " lost!"; 
             hud.SetActive(false);
         }
@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
     {
         // Comeca ataque e contra-ataque do inimigo
         player.Attack(enemy);
-        UpdateText(enemy, enemyWeakness);
+        UpdateText(enemy, enemyHasFireWeakness);
 
         StartCoroutine(EnemyAttack());
     }
@@ -70,8 +70,8 @@ public class GameManager : MonoBehaviour
     {
         // Comeca spell e contra-ataque do inimigo
         player.Fireball(enemy);
-        UpdateText(enemy, enemyWeakness); 
-        UpdateText(player, playerWeakness);
+        UpdateText(enemy, enemyHasFireWeakness); 
+        UpdateText(player, playerHasFireWeakness);
 
         StartCoroutine(EnemyAttack());
     }
@@ -79,8 +79,8 @@ public class GameManager : MonoBehaviour
     private void PlayerSuperAttack()
     {
         // Comeca super ataque e contra-ataque do inimigo
-        player.SuperAttack(enemy);
-        UpdateText(enemy, enemyWeakness);
+        player.SuperAttack(enemy, enemyHasFireWeakness);
+        UpdateText(enemy, enemyHasFireWeakness);
 
         StartCoroutine(EnemyAttack());
     }
@@ -90,16 +90,19 @@ public class GameManager : MonoBehaviour
         // Depois de 1 segundo, ataca
         yield return new WaitForSeconds(1f);
 
-        if (!enemy.IsHealthLow())
+        if (!isBattleEnd) // Evita inimigo atacar quando jogo acabar
         {
-            // Lanca bola de fogo se jogador tem fraqueza por fogo ou se inimigo decidiu usar magia
-            if (playerWeakness || enemy.ShouldUseMagic()) { enemy.Fireball(player); }
-            else { enemy.Attack(player); }
-        }
-        else { enemy.SuperAttack(player); }
+            if (!enemy.IsHealthLow())
+            {
+                // Lanca bola de fogo se jogador tem fraqueza por fogo ou se inimigo decidiu usar magia
+                if (playerHasFireWeakness || enemy.ShouldUseMagic()) { enemy.Fireball(player); }
+                else { enemy.Attack(player); }
+            }
+            else { enemy.SuperAttack(player, playerHasFireWeakness); }
 
-        UpdateText(player, playerWeakness);
-        UpdateText(enemy, enemyWeakness);
+            UpdateText(player, playerHasFireWeakness);
+            UpdateText(enemy, enemyHasFireWeakness);
+        }
 
         StopCoroutine(EnemyAttack());
     }
@@ -144,8 +147,8 @@ public class GameManager : MonoBehaviour
     private void UpdateWeakness(bool weakness, CharacterBehavior character)
     {
         // Atualiza a fraqueza do personagem
-        if (character == player) { playerWeakness = weakness; }
-        else if (character == enemy) {  enemyWeakness = weakness; }
+        if (character == player) { playerHasFireWeakness = weakness; }
+        else if (character == enemy) { enemyHasFireWeakness = weakness; }
     }
 
     private void UpdateHistory(CharacterBehavior character, string actionText)
