@@ -45,10 +45,16 @@ public class CharacterBehavior : MonoBehaviour
         return characterObject.magicMultiply > characterObject.physicalMultiply ? characterObject.magicMultiply : characterObject.physicalMultiply;
     }
 
-    private bool HasMana()
+    public bool HasMana()
     {
         // Retorna resultado da condicao de mana
         return currentMana >= characterObject.spellCost;
+    }
+
+    public bool CanSuperAttack()
+    {
+        // Pode realizar super ataque se tiver no terceiro turno (depois da primeira) e com pouca vida
+        return attackCount == 3 && IsHealthLow();
     }
 
     private void TakeDamage(float damage, bool fireDamage)
@@ -97,8 +103,8 @@ public class CharacterBehavior : MonoBehaviour
 
     public void SuperAttack(CharacterBehavior other, bool otherHasFireWeakness)
     {
-        // Super ataque no terceiro turno e se tiver com pouca vida
-        if (attackCount == 3 && IsHealthLow()) 
+        // Super ataque no 
+        if (CanSuperAttack()) 
         {
             float damage = characterObject.baseDamage * GetPowerfulDamage();
             other.TakeDamage(damage * 2f, false);

@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
         attack.onClick.AddListener(PlayerAttack);
         fireball.onClick.AddListener(PlayerFireball);
         superAttack.onClick.AddListener(PlayerSuperAttack);
+        CheckButtonsCondition();
     }
 
     private void UpdateCharacterObject(CharacterBehavior character)
@@ -38,6 +39,7 @@ public class GameManager : MonoBehaviour
             Shuffle(characters);
             character.SetCharacterObject(characters[0]);
             characters.RemoveAt(0);
+            if (character == player) { CheckButtonsCondition(); }
         }
     }
 
@@ -62,6 +64,7 @@ public class GameManager : MonoBehaviour
         // Comeca ataque e contra-ataque do inimigo
         player.Attack(enemy);
         UpdateText(enemy, enemyHasFireWeakness);
+        CheckButtonsCondition();
 
         StartCoroutine(EnemyAttack());
     }
@@ -72,6 +75,7 @@ public class GameManager : MonoBehaviour
         player.Fireball(enemy);
         UpdateText(enemy, enemyHasFireWeakness); 
         UpdateText(player, playerHasFireWeakness);
+        CheckButtonsCondition();
 
         StartCoroutine(EnemyAttack());
     }
@@ -81,8 +85,16 @@ public class GameManager : MonoBehaviour
         // Comeca super ataque e contra-ataque do inimigo
         player.SuperAttack(enemy, enemyHasFireWeakness);
         UpdateText(enemy, enemyHasFireWeakness);
+        CheckButtonsCondition();
 
         StartCoroutine(EnemyAttack());
+    }
+
+    private void CheckButtonsCondition()
+    {
+        // Disponibilidade de interacao a partir das condicoes
+        fireball.interactable = player.HasMana();
+        superAttack.interactable = player.CanSuperAttack();
     }
 
     private IEnumerator EnemyAttack()
